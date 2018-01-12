@@ -1,0 +1,21 @@
+version: "3.1"
+services:
+  app:
+    restart: always
+    build: ./app
+    volumes:
+      - staticcontent:/app/static
+      - ./app:/app
+    command: /usr/local/bin/gunicorn --reload -w 2 -b :8000 app:app
+  nginx:
+    restart: always
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - staticcontent:/wwww/static
+    depends_on:
+      - app
+volumes:
+  staticcontent:
+  dbdata:

@@ -1,0 +1,17 @@
+
+# Top ISBNs by sheer mentions
+
+SELECT product_id as ISBN, count(url) as Num_Mentions\
+FROM comments
+GROUP BY product_id
+ORDER BY Num_Mentions DESC
+LIMIT 25;
+
+# ISBNs that have no metadata
+SELECT DISTINCT product_id
+FROM comments c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM products p
+    WHERE c.product_id = p.id
+);
