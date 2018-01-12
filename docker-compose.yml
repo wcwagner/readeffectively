@@ -1,14 +1,18 @@
 version: "3.1"
 services:
+  # front-end (react) and flask-api for serving the web application
   app:
-    restart: always
     build: ./app
     volumes:
       - staticcontent:/app/static
       - ./app:/app
-    command: /usr/local/bin/gunicorn --reload -w 2 -b :8000 app:app
-  nginx:
+    command: ./wait-for-it.sh db:5432 -- /usr/local/bin/gunicorn --reload -w 2 -b :8000 app:app
+    env_file:
+      - secrets.env
+    depends_on:
+      - db
     restart: always
+  nginx:
     build: ./nginx
     ports:
       - "80:80"
@@ -16,6 +20,35 @@ services:
       - staticcontent:/wwww/static
     depends_on:
       - app
+      - db
+    restart: always
+  db:
+    build: ./db
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    env_file:
+      - secrets.env
+  # redis-queue that holds reddit comments for processing
+  redis:
+    image: redis
+  # Streams reddit comments and pushes their id to redis-queue if the comment
+  # contains an Amazon book link
+  reddit-pusher:
+    build: ./reddit-pusher
+    env_file:
+      - "redis-queue.env"
+    depends_on:
+      - redis
+  # Pulls reddit comments from redis-queue once they are old enough, gathers
+  # the metadata(score/book metadata), and inserts it into db
+  reddit-puller:
+    build: ./reddit-puller
+    env_file:
+      - "redis-queue.env"
+    depends_on:
+      - redis
+
+
 volumes:
   staticcontent:
   dbdata:

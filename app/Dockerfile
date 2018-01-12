@@ -11,4 +11,5 @@ EXPOSE 8000
 
 # $ gunicorn [OPTIONS] APP_MODULE where APP_MODULE is (MODULE_NAME):$(VARIABLE_NAME)
 # binding on port 8000
+RUN chmod +x ./wait-for-it.sh
 CMD /usr/local/bin/gunicorn -w 2 -b :8000 app:app
