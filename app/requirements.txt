@@ -1,4 +1,0 @@
-Flask
-flask-restful
-gunicorn
-psycopg2

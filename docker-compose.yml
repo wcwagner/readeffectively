@@ -1,12 +1,10 @@
 version: "3.1"
 services:
-  # front-end (react) and flask-api for serving the web application
-  app:
-    build: ./app
+  api:
+    build: ./api
     volumes:
-      - static-content:/app/static
-      - ./app:/code
-    command: ./wait-for-it.sh db:5432 -- /usr/local/bin/gunicorn --reload -w 2 -b :8000 app:app
+      - ./api:/code
+    command: ./wait-for-it.sh db:5432 -- /usr/local/bin/gunicorn --reload -w 2 -b :8000 books:app
     env_file:
       - postgres.env
     depends_on:
@@ -19,7 +17,7 @@ services:
     volumes:
       - static-content:/wwww/static
     depends_on:
-      - app
+      - api
       - db
     restart: always
   db:
