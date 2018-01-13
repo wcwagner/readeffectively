@@ -4,11 +4,11 @@ services:
   app:
     build: ./app
     volumes:
-      - staticcontent:/app/static
-      - ./app:/app
+      - static-content:/app/static
+      - ./app:/code
     command: ./wait-for-it.sh db:5432 -- /usr/local/bin/gunicorn --reload -w 2 -b :8000 app:app
     env_file:
-      - secrets.env
+      - postgres.env
     depends_on:
       - db
     restart: always
@@ -17,7 +17,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - staticcontent:/wwww/static
+      - static-content:/wwww/static
     depends_on:
       - app
       - db
@@ -27,28 +27,38 @@ services:
     volumes:
       - dbdata:/var/lib/postgresql/data
     env_file:
-      - secrets.env
+      - postgres.env
   # redis-queue that holds reddit comments for processing
   redis:
     image: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
   # Streams reddit comments and pushes their id to redis-queue if the comment
   # contains an Amazon book link
   reddit-pusher:
     build: ./reddit-pusher
     env_file:
-      - "redis-queue.env"
+      - redis-queue.env
+      - pusher-api-creds.env
     depends_on:
       - redis
+    volumes:
+      - ./reddit-pusher:/code
   # Pulls reddit comments from redis-queue once they are old enough, gathers
   # the metadata(score/book metadata), and inserts it into db
   reddit-puller:
     build: ./reddit-puller
     env_file:
-      - "redis-queue.env"
+      - redis-queue.env
+      - puller-api-creds.env
     depends_on:
       - redis
+    volumes:
+      - ./reddit-puller:/code
 
 
 volumes:
-  staticcontent:
+  static-content:
   dbdata:
+  redis-data:

@@ -1,7 +1,7 @@
 FROM python:3.6.4
 MAINTAINER William Wagner <wcw.wagner@gmail.com>
-WORKDIR /app
-ADD . /app
+WORKDIR /code
+ADD . /code
 
 # Install any neccessary dependencies
 RUN pip install -r requirements.txt
