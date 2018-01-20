@@ -2,6 +2,7 @@ version: "3.1"
 services:
   api:
     build: ./api
+
     volumes:
       - ./api:/code
     command: ./wait-for-it.sh db:5432 -- /usr/local/bin/gunicorn --reload -w 2 -b :8000 books:app
@@ -20,40 +21,26 @@ services:
       - api
       - db
     restart: always
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+        - REACT_APP_BOOKS_SERVICE_URL=http://api:8000/
+    ports:
+      - 3000:3000
+      - 35729:35729 # expose WebSocket used for hot reploading
+    volumes:
+      - ./client:/code
+    depends_on:
+      - api
   db:
     build: ./db
     volumes:
       - dbdata:/var/lib/postgresql/data
     env_file:
       - postgres.env
-  # redis-queue that holds reddit comments for processing
-  redis:
-    image: redis
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis-data:/data
-  # Streams reddit comments and pushes their id to redis-queue if the comment
-  # contains an Amazon book link
-  reddit-pusher:
-    build: ./reddit-pusher
-    env_file:
-      - redis-queue.env
-      - pusher-api-creds.env
-    depends_on:
-      - redis
-    volumes:
-      - ./reddit-pusher:/code
-  # Pulls reddit comments from redis-queue once they are old enough, gathers
-  # the metadata(score/book metadata), and inserts it into db
-  reddit-puller:
-    build: ./reddit-puller
-    env_file:
-      - redis-queue.env
-      - puller-api-creds.env
-    depends_on:
-      - redis
-    volumes:
-      - ./reddit-puller:/code
 
 
 volumes:
