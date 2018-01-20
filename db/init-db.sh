@@ -25,4 +25,11 @@ psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" "$POSTGRES_DB" <<-EOSQL
         Body TEXT NOT NULL
     );
 
+    COPY comments(Comment_id, Created_utc, Subreddit, Subreddit_id, Author,
+                  URL, ISBN, Score, Link_id, Parent_id, Body)
+    FROM '/amazon_book_comments.csv' delimiter ',' csv;
+
+    COPY books(ISBN, Title, Author, BrowseNodes, Thumbnail)
+    FROM '/book_metadata.csv' delimiter ',' csv;
+
 EOSQL
