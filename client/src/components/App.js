@@ -6,7 +6,10 @@ import Home from './Home';
 import Subreddit from './Subreddit';
 import Topic from './Topic';
 import NavBar from './NavBar';
+import Footer from './Footer';
 
+
+import { Container, Divider, Dropdown, Grid, Header, Image, List, Menu, Segment } from 'semantic-ui-react'
 
 const Main = () => (
   <main>
@@ -23,9 +26,10 @@ const Main = () => (
 class App extends Component {
     render() {
         return (
-            <div className="App">
-              <NavBar />
-              <Main />
+            <div style={{width: '100%', height: '100%'}}>
+                <NavBar/>
+                <Main/>
+                <Footer/>
             </div>
         );
     }
