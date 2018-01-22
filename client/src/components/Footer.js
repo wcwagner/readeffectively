@@ -14,10 +14,10 @@ class Footer extends Component {
         inverted
         vertical
         textAlign='center'
-        style={{margin: '3em 0em 0em',
-                padding: '3.5em 0em',
+        style={{padding: '3.5em 0em',
                 backgroundColor: '#252F3D',
-                maxHeight: '200px',
+                height: '100%',
+                width: '100%',
               }}
       >
         <Image centered size='small' src={amazon}/>

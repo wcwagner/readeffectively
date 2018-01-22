@@ -47,8 +47,7 @@ class DesktopNavBar extends Component {
   render() {
     const { activeItem } = this.state;
     return (
-
-        <Menu stackable size='large' style={{height: '5.5em', 'backgroundColor': '#252F3D'}}>
+        <Menu stackable size='large' style={{ 'backgroundColor': '#252F3D', borderRadius: 0}}>
           <Container>
             <Menu.Item as='a'>
               <Image src={amazon} size='small'/>

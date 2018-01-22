@@ -7,34 +7,40 @@ import Subreddit from './Subreddit';
 import Topic from './Topic';
 import NavBar from './NavBar';
 import Footer from './Footer';
+import NoMatch from './NoMatch';
 
+const DefaultLayout = ({component: Component, ...rest}) => {
+  return (
+    <Route {...rest} render={matchProps => (
+      <div style={{ display: 'flex', flexDirection: 'column'}}>
+        <div style={{flex: '1 0 auto'}}>
+          <NavBar/>
+        </div>
+        <div style={{flex: '1 1 auto'}}>
+          <Component {...matchProps} />
+        </div>
+        <div style={{flex: '1 0 150px'}}>
+          <Footer/>
+        </div>
+      </div>
+    )} />
+  )
+};
 
-import { Container, Divider, Dropdown, Grid, Header, Image, List, Menu, Segment } from 'semantic-ui-react'
-
-const Main = () => (
-  <main>
-    <Switch>
-      <Route exact path='/' component={Home}/>
-      <Route path='/r/:subreddit' component={Subreddit}/>
-      <Route path='/about' component={About}/>
-      <Route path='/book/:isbn' component={BookInfo}/>
-      <Route path='/topics/:topic' component={Topic}/>
-    </Switch>
-  </main>
-)
 
 class App extends Component {
-    render() {
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <NavBar/>
-                <Main/>
-                <Footer/>
-            </div>
-        );
-    }
+  render() {
+    return (
+      <Switch>
+        <DefaultLayout exact path='/' component={Home}/>
+        <DefaultLayout path='/r/:subreddit' component={Subreddit}/>
+        <DefaultLayout path='/about' component={About}/>
+        <DefaultLayout path='/book/:isbn' component={BookInfo}/>
+        <DefaultLayout path='/topics/:topic' component={Topic}/>
+        <DefaultLayout component={NoMatch}/>
+      </Switch>
+    );
+  }
 }
-
-
 
 export default App;
