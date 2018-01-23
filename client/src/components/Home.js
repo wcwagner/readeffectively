@@ -109,7 +109,7 @@ class CustomReccomendations extends Component {
 
   render() {
     return (
-      <Container text style={{marginTop: '3em'}}>
+      <Container text style={{marginTop: '3em', marginBottom: '3em'}}>
         <Segment textAlign='center'>
           <Header
             as='h2'
@@ -136,9 +136,7 @@ class Home extends Component {
 
   render() {
     return (
-      <div>
-        <Container style={{width: '80%', 'margin-top': '3em'}} >
-          <Grid>
+          <Grid container style={{marginTop: '1em',}}>
             <Grid.Row stretched style={{'backgroundColor': 'white'}}>
               <PopularTopics topics={this.POPULAR_TOPICS} />
             </Grid.Row>
@@ -149,8 +147,6 @@ class Home extends Component {
               <CustomReccomendations/>
             </Grid.Row>
           </Grid>
-        </Container>
-      </div>
     );
   }
 }

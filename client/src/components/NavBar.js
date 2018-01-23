@@ -3,15 +3,8 @@ import {Container, Dropdown, Form, Header,
         Image, Input, Menu, Responsive } from 'semantic-ui-react';
 import amazon from '../images/amazon.svg';
 
-const countryOptions = [
-  { key: 'af', value: 'af', flag: 'af', text: 'r/all'},
-  { key: 'ax', value: 'ax', flag: 'ax', text: 'Aland Islands' },
-  { key: 'al', value: 'al', flag: 'al', text: 'Albania' },
-  { key: 'dz', value: 'dz', flag: 'dz', text: 'Algeria' },
-  { key: 'as', value: 'as', flag: 'as', text: 'American Samoa' },
-  { key: 'ad', value: 'ad', flag: 'ad', text: 'Andorra' },
-  { key: 'ao', value: 'ao', flag: 'ao', text: 'Angola' },
-  { key: 'ai', value: 'ai', flag: 'ai', text: 'Anguilla' },
+const subredditOptions = [
+  { key: 'all', value: 'all', text: 'r/all'},
 ]
 
 
@@ -32,9 +25,8 @@ class SearchBar extends Component {
 
 const SubredditSelector = () => (
   <Dropdown
-    placeholder='Select Country'
-    options={countryOptions}
-    defaultValue='af'
+    options={subredditOptions}
+    defaultValue='all'
     style={{flex: '0 1 auto', width: 'auto', borderRadius: '0',
             backgroundColor: '#f2f2f2'}}
     search selection fluid
@@ -43,7 +35,7 @@ const SubredditSelector = () => (
 )
 
 const SubredditSearchBar = () => (
-  <div style={{display: 'flex', width: '100%', maxWidth: '1200px'}}>
+  <div style={{display: 'flex', width: '100%'}}>
     <SubredditSelector/>
     <SearchBar/>
   </div>
@@ -58,7 +50,7 @@ class DesktopNavBar extends Component {
   render() {
     const { activeItem } = this.state;
     return (
-        <Menu stackable size='large'
+        <Menu size='large'
               style={{ 'backgroundColor': '#252F3D', borderRadius: 0, justifyContent: 'center'}}>
           <Container style={{width: '95%'}}>
             <Menu.Item as='a'>
@@ -97,28 +89,33 @@ class MobileNavBar extends Component {
   render() {
     const { activeItem } = this.state;
     return (
-        <Menu stackable widths={4}>
-          <Container>
+        <Menu stackable widths={4} size='large'
+              style={{backgroundColor: '#252F3D',
+                       borderRadius: 0,
+                       justifyContent: 'center',
+                       width: '100%'}}>
             <Menu.Item>
               <Image src={amazon} size='small'/>
             </Menu.Item>
 
-            <Menu.Item>
-               <Input placeholder='Search...' />
+            <Menu.Item style={{flex: '1 1 auto'}}>
+              <SubredditSearchBar/>
             </Menu.Item>
             <Menu.Item
-              name='about'
+              name='About'
               active={activeItem === 'about'}
               onClick={this.handleItemClick}
             >
-              About
+              <Header inverted size='small'>About</Header>
             </Menu.Item>
             <Menu.Item
               name='sign-in'
               active={activeItem === 'sign-in'}
               onClick={this.handleItemClick}
-            />
-          </Container>
+              style={{'paddingRight': '2em'}}
+            >
+              <Header inverted size='small'>Sign In</Header>
+            </Menu.Item>
         </Menu>
     );
   }
