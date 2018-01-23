@@ -22,8 +22,10 @@ class SearchBar extends Component {
 
   render() {
     return (
-      <Form onSubmit={this.handleFormSubmit}>
-      </Form>
+      <Input
+        icon='search'
+        style={{flex: '1 0 auto', 'border-radius': 0}}
+       />
     );
   }
 }
@@ -33,10 +35,19 @@ const SubredditSelector = () => (
     placeholder='Select Country'
     options={countryOptions}
     defaultValue='af'
-    style={{width: '10em'}}
+    style={{flex: '0 1 auto', width: 'auto', borderRadius: '0',
+            backgroundColor: '#f2f2f2'}}
     search selection fluid
 
   />
+)
+
+const SubredditSearchBar = () => (
+  <div style={{display: 'flex', width: '100%', maxWidth: '1200px'}}>
+    <SubredditSelector/>
+    <SearchBar/>
+  </div>
+
 )
 
 class DesktopNavBar extends Component {
@@ -47,23 +58,16 @@ class DesktopNavBar extends Component {
   render() {
     const { activeItem } = this.state;
     return (
-        <Menu stackable size='large' style={{ 'backgroundColor': '#252F3D', borderRadius: 0}}>
-          <Container>
+        <Menu stackable size='large'
+              style={{ 'backgroundColor': '#252F3D', borderRadius: 0, justifyContent: 'center'}}>
+          <Container style={{width: '95%'}}>
             <Menu.Item as='a'>
               <Image src={amazon} size='small'/>
             </Menu.Item>
 
-            <Menu.Item>
-              <SubredditSelector/>
+            <Menu.Item style={{flex: '1 1 auto'}}>
+              <SubredditSearchBar/>
             </Menu.Item>
-
-            <Menu.Menu position='right'
-            style={{width: '100%', 'borderRightColor': 'rgba(34, 36, 38, 0.15)',
-                  'borderRightStyle': 'solid', 'borderRightWidth': '1px'}}>
-              <Menu.Item style={{width: '95%'}}>
-               <Input icon='search' placeholder='Search...' />
-              </Menu.Item>
-            </Menu.Menu>
             <Menu.Item
               name='About'
               active={activeItem === 'about'}
