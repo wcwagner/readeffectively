@@ -1,7 +1,11 @@
+import json
 import os
 import psycopg2
-from flask import Flask
-from flask_restful import Api, Resource
+from authenticate import requires_auth
+from flask import Flask, request
+from flask_cors import CORS
+from queries import SQL_TOP_BOOKS_BY_SUBREDDIT
+from psycopg2 import sql
 
 # Get env variables set by docker-compose
 DB_USER = os.environ['POSTGRES_USER']
@@ -20,18 +24,33 @@ except Exception as e:
     raise
 
 app = Flask(__name__)
-api = Api(app)
+CORS(app)
 
 
-class BookAPI(Resource):
-    def get(self, isbn):
-        return f'Discussion for ISBN: {isbn}'
+@app.route('/api/r/<subreddit_name>', methods=['GET'])
+def subreddit(subreddit_name):
+    ORDER_BY_COL = 'Total Mentions'  # the deault
+    if 'sort' in request.args:
+        ORDER_BY_COL = f'Total {request.args["sort"].capitalize()}'
+
+    # Field Name & Table Name parameters must be handled outside of cur.excute()
+    query = sql.SQL(SQL_TOP_BOOKS_BY_SUBREDDIT).format(sql.Identifier(ORDER_BY_COL))
+
+    params = {
+        'SUBREDDIT': subreddit_name,
+    }
+    cur.execute(query, params)
+
+    return json.dumps(cur.fetchall())
 
 
-class SubredditAPI(Resource):
-    def get(self, subreddit):
-        return f'Top books for r/{subreddit}'
+@app.route('/api/book/<isbn>')
+@requires_auth
+def book(isbn):
+    ...
 
 
-api.add_resource(BookAPI, '/books/<string:isbn>')
-api.add_resource(SubredditAPI, '/r/<string:subreddit>')
+@app.route('/api/shelves/<topic>')
+@requires_auth
+def shelve(topic):
+    ...
