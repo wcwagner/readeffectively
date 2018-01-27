@@ -16,7 +16,7 @@ const DefaultLayout = ({component: Component, ...rest}) => {
         <div style={{flex: '1 0 auto'}}>
           <NavBar/>
         </div>
-        <div style={{flex: '1 1 auto'}}>
+        <div style={{flex: '1 1 900px'}}>
           <Component {...matchProps} />
         </div>
         <div style={{flex: '1 0 150px'}}>

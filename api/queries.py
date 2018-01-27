@@ -1,6 +1,7 @@
 SQL_TOP_BOOKS_BY_SUBREDDIT = (
 '''
-SELECT B.title, B.isbn, B.thumbnail, book_mentions.*
+SELECT B.title, B.thumbnail, B.isbn, "Total Mentions",
+      "Total Score"
 FROM books B
     INNER JOIN(
         SELECT comments_filter.isbn, COUNT(comments_filter.isbn) AS "Total Mentions",

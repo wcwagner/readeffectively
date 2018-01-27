@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import {Container, Dropdown, Form, Header,
-        Image, Input, Menu, Responsive } from 'semantic-ui-react';
+        Image, Input, Menu, Label, Responsive } from 'semantic-ui-react';
 import amazon from '../images/amazon.svg';
 
 const subredditOptions = [
-  { key: 'all', value: 'all', text: 'r/all'},
+  { key: 'all', value: 'all', text: 'all'},
 ]
 
 
@@ -17,30 +17,66 @@ class SearchBar extends Component {
     return (
       <Input
         icon='search'
-        style={{flex: '1 0 auto', 'border-radius': 0}}
+        onChange={this.props.handleSearchChange}
+        style={{flex: '8 0 auto', 'borderRadius': 0}}
        />
     );
   }
 }
 
-const SubredditSelector = () => (
-  <Dropdown
-    options={subredditOptions}
-    defaultValue='all'
-    style={{flex: '0 1 auto', width: 'auto', borderRadius: '0',
-            backgroundColor: '#f2f2f2'}}
-    search selection fluid
 
-  />
-)
+class SubredditSelector extends Component {
 
-const SubredditSearchBar = () => (
-  <div style={{display: 'flex', width: '100%'}}>
-    <SubredditSelector/>
-    <SearchBar/>
-  </div>
+  render() {
+    return (
+      <Input
+        defaultValue='all'
+        label='r/'
+        onChange={this.props.handleSubredditChange}
+        style={{flex: '1 1 100px', borderRadius: '0',
+                backgroundColor: '#f2f2f2'}}
+      />
+    )
+  }
+}
 
-)
+
+class SubredditSearchBar extends Component {
+
+  handleSubredditChange = (event, { value }) => {
+    console.log(value);
+    this.setState({subredditValue: value})
+  }
+
+  handleSearchChange = (event, { value }) => {
+    console.log(value);
+    console.log(event.target);
+    this.setState({searchValue: value});
+  }
+
+  handleSubmit = () => {
+    const { subredditValue, searchValue } = this.state;
+    console.log(`Submitting ${subredditValue}?q=${searchValue}`);
+  }
+
+  render() {
+    return (
+      <div style={{display: 'flex', width: '100%',}}>
+        <Form
+          onSubmit={this.handleSubmit}
+          unstackable
+          style={{flex: '1 0 auto', alignSelf: 'stretch'}}
+        >
+          <Form.Group inline style={{margin: 0}}>
+            <SubredditSelector handleSubredditChange={this.handleSubredditChange} />
+            <SearchBar handleSearchChange={this.handleSearchChange}/>
+          </Form.Group>
+        </Form>
+      </div>
+    )
+  }
+}
+
 
 class DesktopNavBar extends Component {
   state = {}

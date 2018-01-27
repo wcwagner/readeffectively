@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from 'axios';
- import { Container, Header } from 'semantic-ui-react'
-
+import { Container, Sidebar, Item, Segment, Grid, Button, Menu, Image, Icon, Header, Pagination } from 'semantic-ui-react'
+import "semantic-ui-css/semantic.css"
 
 const hits = [
   {
@@ -42,9 +42,35 @@ const hits = [
   },
 ];
 
-class Sidebar extends Component {
+class Hits extends Component{
 
+  _make_hit() {
+    return (
+      <Item>
+        <Item.Content>
+          <Item.Header as='a'>Header</Item.Header>
+          <Item.Meta>Description</Item.Meta>
+          <Item.Description>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          </Item.Description>
+          <Item.Extra>Additional Details</Item.Extra>
+        </Item.Content>
+      </Item>
+    )
+  }
+  render() {
+    return (
+      <Item.Group>
+        {
+          [...Array(8)].map((e, i) =>
+            this._make_hit()
+          )
+        }
+      </Item.Group>
+    );
+  }
 }
+
 
 class Subreddit extends Component {
   constructor(props) {
@@ -59,17 +85,52 @@ class Subreddit extends Component {
   }
 
   getSubreddit() {
-    axios.get('http://localhost:80/api/r/books')
-    .then((resp) => { console.log(resp); this.setState({hits: resp}); })
+    console.log(`http://localhost/api/r/${this.props.match.params.subreddit}`);
+    axios.get(`http://localhost/api/r/${this.props.match.params.subreddit}`)
+    .then((resp) => { console.log(resp); this.setState({hits: resp.data}); })
     .catch((err) => { console.log(err); })
+  }
+
+  makeCard(data, i) {
+    let [title, thumbnail, ISBN, mentions, score] = data;
+    return (
+      <Item key={i}>
+        <Item.Image size='tiny' src={thumbnail}/>
+        <Item.Content>
+          <Item.Header as='a'>{title}</Item.Header>
+          <Item.Description>
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+          </Item.Description>
+          <Item.Extra as='a'>
+            <Icon color='blue' name='comments' /> {mentions} comments
+          </Item.Extra>
+          <Item.Extra as='a'>
+            <Icon color='orange' name='arrow up' /> {score} upvotes
+          </Item.Extra>
+        </Item.Content>
+      </Item>
+    )
   }
 
 
   render() {
+    let { hits } = this.state;
+    console.log(hits.length);
     return (
-      <Container text>
-        <Header> {this.props.match.params.subreddit} </Header>
-      </Container>
+      <div style={{display: 'flex', flexDirection: 'column'}}>
+        <div style={{flex: '1 1 40px', borderWidth: '0', borderBottomWidth: '1px',  borderColor: 'gray', borderStyle: 'solid'}}>
+          Showing 1 - 10
+        </div>
+        <Container style={{marginTop: '2em', marginBottom: '2em'}}>
+          <Item.Group divided>
+            {Array(hits.length).fill().map((_, i) =>
+                this.makeCard(hits[i], i)
+              )}
+          </Item.Group>
+        </Container>
+        <Pagination defaultActivePage={5} totalPages={10}
+          style={{alignSelf: 'center', marginTop: '2em', marginBottom: '2em'}}/>
+      </div>
     );
   }
 }
