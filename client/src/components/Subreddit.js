@@ -1,100 +1,33 @@
 import React, { Component } from "react";
+import PropTypes from 'prop-types';
+import {withRouter} from "react-router-dom";
 import axios from 'axios';
-import { Container, Sidebar, Item, Segment, Grid, Button, Menu, Image, Icon, Header, Pagination } from 'semantic-ui-react'
+import queryString from 'query-string';
+import { Container, Item, Icon, Pagination } from 'semantic-ui-react'
 import "semantic-ui-css/semantic.css"
 
-const hits = [
-  {
-    title: "A Random Walk down Wall Street: The Time-tested Strategy for Successful Investing",
-    author: "Burton G. Malkiel",
-    thumbnail: "https://images-na.ssl-images-amazon.com/images/I/51SyHrmTdTL._SX331_BO1,204,203,200_.jpg",
-    isbn: "0393352242",
-  },
-  {
-    title: "How We Got to Now: Six Innovations That Made the Modern World Reprint Edition",
-    author: "Steven Johnson",
-    thumbnail: "https://images-na.ssl-images-amazon.com/images/I/51uJk41nIrL._SX318_BO1,204,203,200_.jpg",
-    isbn: "1594633932"
-  },
-  {
-    title: "The Innovator's Solution: Creating and Sustaining Successful Growth",
-    author: "Clayton M. Christensen ",
-    thumbnail: "https://images-na.ssl-images-amazon.com/images/I/51qWWOy59TL._SX336_BO1,204,203,200_.jpg",
-    isbn: "1422196577",
-  },
-  {
-    title: "A Random Walk down Wall Street: The Time-tested Strategy for Successful Investing",
-    author: "Burton G. Malkiel",
-    thumbnail: "https://images-na.ssl-images-amazon.com/images/I/51SyHrmTdTL._SX331_BO1,204,203,200_.jpg",
-    isbn: "0393352242",
-  },
-  {
-    title: "How We Got to Now: Six Innovations That Made the Modern World Reprint Edition",
-    author: "Steven Johnson",
-    thumbnail: "https://images-na.ssl-images-amazon.com/images/I/51uJk41nIrL._SX318_BO1,204,203,200_.jpg",
-    isbn: "1594633932"
-  },
-  {
-    title: "The Innovator's Solution: Creating and Sustaining Successful Growth",
-    author: "Clayton M. Christensen ",
-    thumbnail: "https://images-na.ssl-images-amazon.com/images/I/51qWWOy59TL._SX336_BO1,204,203,200_.jpg",
-    isbn: "1422196577",
-  },
-];
 
-class Hits extends Component{
 
-  _make_hit() {
-    return (
-      <Item>
-        <Item.Content>
-          <Item.Header as='a'>Header</Item.Header>
-          <Item.Meta>Description</Item.Meta>
-          <Item.Description>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          </Item.Description>
-          <Item.Extra>Additional Details</Item.Extra>
-        </Item.Content>
-      </Item>
-    )
-  }
+class SearchResultsInfo extends Component {
   render() {
     return (
-      <Item.Group>
-        {
-          [...Array(8)].map((e, i) =>
-            this._make_hit()
-          )
-        }
-      </Item.Group>
-    );
+      <div style={{flex: '1 1 40px', borderWidth: '0', borderBottomWidth: '1px',  borderColor: 'gray', borderStyle: 'solid'}}>
+        Showing 1 - 10
+      </div>
+    )
   }
 }
 
-
-class Subreddit extends Component {
+class BookList extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      hits: [],
-    }
+    this.makeCard = this.makeCard.bind(this);
   }
 
-  componentDidMount() {
-    this.getSubreddit();
-  }
-
-  getSubreddit() {
-    console.log(`http://localhost/api/r/${this.props.match.params.subreddit}`);
-    axios.get(`http://localhost/api/r/${this.props.match.params.subreddit}`)
-    .then((resp) => { console.log(resp); this.setState({hits: resp.data}); })
-    .catch((err) => { console.log(err); })
-  }
-
-  makeCard(data, i) {
+  makeCard(data, key) {
     let [title, thumbnail, ISBN, mentions, score] = data;
     return (
-      <Item key={i}>
+      <Item key={key}>
         <Item.Image size='tiny' src={thumbnail}/>
         <Item.Content>
           <Item.Header as='a'>{title}</Item.Header>
@@ -112,27 +45,120 @@ class Subreddit extends Component {
     )
   }
 
+  render() {
+    let { hits } = this.props;
+    console.log(hits);
+    return (
+      <Container style={{marginTop: '2em', marginBottom: '2em'}}>
+        <Item.Group divided>
+          {Array(hits.length).fill().map((_, i) =>
+              this.makeCard(hits[i], i)
+          )}
+        </Item.Group>
+      </Container>
+    )
+
+  }
+}
+
+class Pageinator extends Component {
+
+}
+
+
+class Subreddit extends Component {
+  static propTypes = {
+      match: PropTypes.object.isRequired,
+      location: PropTypes.object.isRequired,
+      history: PropTypes.object.isRequired
+    }
+
+  constructor(props) {
+    super(props);
+    let { location } = this.props;
+    let params = queryString.parse(location.search);
+    this.state = {
+      hits: [],
+      activeHits: [],
+      activePage: params.page ? params.page : 1,
+    }
+    this.ITEMS_PER_PAGE = 12;
+    this.getHits = this.getHits.bind(this);
+    this.handlePaginationChange = this.handlePaginationChange.bind(this);
+    this.getActiveHits = this.getActiveHits.bind(this);
+  }
+
+  componentDidMount() {
+    this.getHits();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let { location } = this.props
+    let {location: nextLocation } = nextProps;
+    if (location !== nextLocation) {
+      let params = queryString.parse(nextLocation.search);
+      // if params is empty, it means we are at root /r/:subreddit, so display page 1
+      let activePage = params.page ? params.page : 1;
+      let activeHits = this.getActiveHits(this.state.hits, activePage);
+      this.setState({activePage, activeHits });
+    }
+
+  }
+
+
+  getActiveHits(hits, activePage) {
+    let beginIx = (activePage - 1) * this.ITEMS_PER_PAGE;
+    let endIx = (activePage) * this.ITEMS_PER_PAGE;
+    return hits.slice(beginIx, endIx);;
+  }
+
+  getHits() {
+    axios.get(`http://localhost/api/r/${this.props.match.params.subreddit}`)
+    .then((resp) => {
+      this.setState({
+        hits: resp.data,
+        activeHits: this.getActiveHits(resp.data, this.state.activePage),
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+  }
+
+  handlePaginationChange(event, data) {
+    let { activePage } = data;
+    let { history } = this.props;
+    let { subreddit } = this.props.match.params;
+
+    // set active hits, depending on activePage and how many items there are per page
+    let activeHits = this.getActiveHits(this.state.hits, activePage);
+    this.setState({activePage: activePage,
+                   activeHits: activeHits});
+    let to = {pathname: `/r/${subreddit}`,
+              search: queryString.stringify({page: activePage})};
+    history.push(to);
+  }
+
 
   render() {
     let { hits } = this.state;
-    console.log(hits.length);
+    console.log('RENDERING');
     return (
       <div style={{display: 'flex', flexDirection: 'column'}}>
-        <div style={{flex: '1 1 40px', borderWidth: '0', borderBottomWidth: '1px',  borderColor: 'gray', borderStyle: 'solid'}}>
-          Showing 1 - 10
-        </div>
-        <Container style={{marginTop: '2em', marginBottom: '2em'}}>
-          <Item.Group divided>
-            {Array(hits.length).fill().map((_, i) =>
-                this.makeCard(hits[i], i)
-              )}
-          </Item.Group>
-        </Container>
-        <Pagination defaultActivePage={5} totalPages={10}
-          style={{alignSelf: 'center', marginTop: '2em', marginBottom: '2em'}}/>
+        <SearchResultsInfo />
+        <BookList
+          hits={this.state.activeHits}
+        />
+        <Pagination
+          activePage={this.state.activePage}
+          totalPages={Math.max(1, Math.ceil(hits.length / this.ITEMS_PER_PAGE))}
+          onPageChange={this.handlePaginationChange}
+          style={{alignSelf: 'center', marginTop: '2em', marginBottom: '2em'}}
+        />
+        }
       </div>
     );
   }
 }
 
-export default Subreddit;
+export default withRouter(Subreddit);
