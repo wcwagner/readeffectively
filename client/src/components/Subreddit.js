@@ -36,7 +36,7 @@ class BookList extends Component {
   }
 
   makeCard(data, key) {
-    let [title, thumbnail, ISBN, mentions, score] = data;
+    let {title, thumbnail, ISBN, mentions, score} = data;
     return (
       <Item
         key={key}
@@ -130,8 +130,8 @@ class Subreddit extends Component {
     axios.get(`http://localhost/api/r/${this.props.match.params.subreddit}`)
     .then((resp) => {
       this.setState({
-        hits: resp.data,
-        activeHits: this.getActiveHits(resp.data, this.state.activePage),
+        hits: resp.data.mentions,
+        activeHits: this.getActiveHits(resp.data.mentions, this.state.activePage),
       });
     })
     .catch((err) => {
