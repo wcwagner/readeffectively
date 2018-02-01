@@ -2,9 +2,9 @@ import json
 import os
 import psycopg2
 from authenticate import requires_auth
-from flask import Flask, request
+from flask import Flask, request, abort
 from flask_cors import CORS
-from queries import SQL_TOP_BOOKS_BY_SUBREDDIT
+from queries import SQL_TOP_BOOKS_BY_SUBREDDIT, SQL_TOP_COMMENTS_BY_ISBN, SQL_BOOK_BY_ISBN
 from psycopg2 import sql
 
 # Get env variables set by docker-compose
@@ -44,10 +44,19 @@ def subreddit(subreddit_name):
     return json.dumps(cur.fetchall())
 
 
-@app.route('/api/book/<isbn>')
-@requires_auth
+@app.route('/api/book/<isbn>', methods=['GET'])
 def book(isbn):
-    ...
+    params = {'ISBN': isbn}
+    cur.execute(SQL_TOP_COMMENTS_BY_ISBN, params)
+    comments = cur.fetchall()
+    cur.execute(SQL_BOOK_BY_ISBN, params)
+    if not cur.rowcount:
+        abort(400)
+    book_data = next(cur)
+    col_names = [desc[0].lower() for desc in cur.description]
+    resp = dict(zip(col_names, book_data))
+    resp['comments'] = comments
+    return json.dumps(resp)
 
 
 @app.route('/api/shelves/<topic>')
