@@ -27,6 +27,18 @@ app = Flask(__name__)
 CORS(app)
 
 
+def _fieldify_rows(cursor):
+    """
+    Returns list of dicts, where each dict {...,col_name: value,...} represents a row in the cursor
+    """
+    col_names = [desc[0] for desc in cur.description]
+    row_dicts = []
+    for row in cursor:
+        dic = {col: val for col, val in zip(col_names, row)}
+        row_dicts.append(dic)
+    return row_dicts
+
+
 @app.route('/api/r/<subreddit_name>', methods=['GET'])
 def subreddit(subreddit_name):
     ORDER_BY_COL = 'Total Mentions'  # the deault
@@ -40,22 +52,30 @@ def subreddit(subreddit_name):
         'SUBREDDIT': subreddit_name,
     }
     cur.execute(query, params)
-
-    return json.dumps(cur.fetchall())
+    mentions = _fieldify_rows(cur)
+    resp = {
+        'data': {
+            'mentions': mentions
+        }
+    }
+    return json.dumps(resp)
 
 
 @app.route('/api/book/<isbn>', methods=['GET'])
 def book(isbn):
     params = {'ISBN': isbn}
     cur.execute(SQL_TOP_COMMENTS_BY_ISBN, params)
-    comments = cur.fetchall()
+    comments = _fieldify_rows(cur)
     cur.execute(SQL_BOOK_BY_ISBN, params)
     if not cur.rowcount:
         abort(400)
-    book_data = next(cur)
-    col_names = [desc[0].lower() for desc in cur.description]
-    resp = dict(zip(col_names, book_data))
-    resp['comments'] = comments
+    book_data = _fieldify_rows(cur)[0]
+    resp = {
+        'data': {
+            'book': book_data,
+            'comments': comments
+        }
+    }
     return json.dumps(resp)
 
 
