@@ -1,12 +1,8 @@
 import React, { Component } from "react";
-import axios from 'axios';
-import { Container, Sidebar, Segment, Button, Menu, Image, Icon, Header, Divider, List } from 'semantic-ui-react'
+import { Segment,  Image, Divider, List } from 'semantic-ui-react'
 import amazon from '../images/amazon.svg';
 
 class Footer extends Component {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return (

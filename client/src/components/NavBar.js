@@ -1,17 +1,9 @@
 import React, { Component } from 'react';
-import {Container, Dropdown, Form, Header,
-        Image, Input, Menu, Label, Responsive } from 'semantic-ui-react';
+import {Container, Form, Header,
+        Image, Input, Menu, Responsive } from 'semantic-ui-react';
 import amazon from '../images/amazon.svg';
 
-const subredditOptions = [
-  { key: 'all', value: 'all', text: 'all'},
-]
-
-
 class SearchBar extends Component {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return (
