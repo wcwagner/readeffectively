@@ -44,4 +44,15 @@ SQL_TOP_COMMENTS_BY_ISBN = (
 )
 
 
-
+SQL_TOP_COMENTIONS = (
+    '''
+    SELECT B.title, B.thumbnail, isbn2, frequency
+    FROM books B INNER JOIN (
+        SELECT isbn2, frequency
+        FROM comentions C
+        WHERE isbn1=%(isbn1)s
+        ORDER BY C.frequency DESC
+        LIMIT 10
+    ) topComentions ON B.isbn = topComentions.isbn2
+    '''
+)

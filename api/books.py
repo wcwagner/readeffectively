@@ -3,7 +3,7 @@ import os
 import psycopg2
 from flask import Flask, request, abort
 from flask_cors import CORS
-from queries import SQL_TOP_BOOKS_BY_SUBREDDIT, SQL_TOP_COMMENTS_BY_ISBN, SQL_BOOK_BY_ISBN
+from queries import SQL_TOP_BOOKS_BY_SUBREDDIT, SQL_TOP_COMMENTS_BY_ISBN, SQL_BOOK_BY_ISBN, SQL_TOP_COMENTIONS
 from psycopg2 import sql
 
 # Get env variables set by docker-compose
@@ -73,6 +73,19 @@ def book(isbn):
         'data': {
             'book': book_data,
             'comments': comments
+        }
+    }
+    return json.dumps(resp)
+
+
+@app.route('/api/comentions/<isbn>')
+def comentions(isbn):
+    params = {'isbn1': isbn}
+    cur.execute(SQL_TOP_COMENTIONS, params)
+    comentions = _fieldify_rows(cur)
+    resp = {
+        'data': {
+            'comentions': comentions
         }
     }
     return json.dumps(resp)
