@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import axios from 'axios';
 import ReactMarkdown from "react-markdown";
-import { Container, Comment, Item, Icon, Segment } from 'semantic-ui-react'
+import { Container, Comment, Item, Icon, Segment, Rating } from 'semantic-ui-react'
 
 
 class BookJumbotron extends Component{
 
   render() {
-    let {title, author, thumbnail} = this.props;
+    console.log('Jumbotron props:', this.props);
+    let {title, author, thumbnail, editorialreview} = this.props;
     return (
       <Segment style={{marginTop: '1em'}}>
         <Item.Group>
@@ -18,12 +19,10 @@ class BookJumbotron extends Component{
             />
             <Item.Content>
               <Item.Header as='h1'> {title} </Item.Header>
+              <Item.Meta>By {author} </Item.Meta>
+              <Item.Meta><Rating icon='star' defaultRating={4} maxRating={5}/></Item.Meta>
               <Item.Description>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-                magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-                est laborum.
+                {editorialreview}
               </Item.Description>
             </Item.Content>
           </Item>

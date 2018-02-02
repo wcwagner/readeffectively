@@ -36,12 +36,12 @@ class BookList extends Component {
   }
 
   makeCard(data, key) {
-    let {title, thumbnail, ISBN, mentions, score} = data;
+    let {title, thumbnail, isbn, totalMentions, totalScore} = data;
     return (
       <Item
         key={key}
         as={Link}
-        to={`/book/${ISBN}`}
+        to={`/book/${isbn}`}
       >
         <Item.Image size='tiny' src={thumbnail}/>
         <Item.Content>
@@ -50,10 +50,10 @@ class BookList extends Component {
            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
           </Item.Description>
           <Item.Extra as='a'>
-            <Icon color='blue' name='comments' /> {mentions} comments
+            <Icon color='blue' name='comments' /> {totalMentions} comments
           </Item.Extra>
           <Item.Extra as='a'>
-            <Icon color='orange' name='arrow up' /> {score} upvotes
+            <Icon color='orange' name='arrow up' /> {totalScore} upvotes
           </Item.Extra>
         </Item.Content>
       </Item>
@@ -127,11 +127,12 @@ class Subreddit extends Component {
   }
 
   getHits() {
-    axios.get(`http://localhost/api/r/${this.props.match.params.subreddit}`)
+    axios.get(`http://localhost:80/api/r/${this.props.match.params.subreddit}`)
     .then((resp) => {
+      console.log(resp);
       this.setState({
-        hits: resp.data.mentions,
-        activeHits: this.getActiveHits(resp.data.mentions, this.state.activePage),
+        hits: resp.data.data.mentions,
+        activeHits: this.getActiveHits(resp.data.data.mentions, this.state.activePage),
       });
     })
     .catch((err) => {

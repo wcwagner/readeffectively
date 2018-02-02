@@ -3,10 +3,10 @@ import json
 import time
 import traceback
 import random
+import os
 from bottlenose import Amazon
 from bs4 import BeautifulSoup
 from itertools import islice, chain
-from secrets import AMAZON_CREDS
 from urllib.error import HTTPError, URLError
 
 
@@ -17,17 +17,26 @@ def error_handler(err):
         time.sleep(random.expovariate(0.1))
         return True
 
+"""
+AMAZON_PAAPI_ACCESS_KEY = os.environ['AMAZON_PAAPI_ACCESS_KEY']
+AMAZON_PAAPI_SECRET_KEY = os.environ['AMAZON_PAAPI_SECRET_KEY']
+AMAZON_ASSOCIATE_TAG = os.environ['AMAZON_ASSOCIATE_TAG']
+"""
+
+AMAZON_PAAPI_ACCESS_KEY = 'AKIAIUBRMHIHWBXO5CQA'
+AMAZON_PAAPI_SECRET_KEY = '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'
+AMAZON_ASSOCIATE_TAG = 'readersindex-20'
 
 # client to the Amazon Product Advertising API
-AMZN = Amazon(AMAZON_CREDS['PAAPI_ACCESS_KEY'], AMAZON_CREDS['PAAPI_SECRET_KEY'], AMAZON_CREDS['ASSOCIATE_TAG'],
+AMZN = Amazon(AMAZON_PAAPI_ACCESS_KEY, AMAZON_PAAPI_SECRET_KEY, AMAZON_ASSOCIATE_TAG,
               Parser=lambda text: BeautifulSoup(text, 'xml'),
               ErrorHandler=error_handler)
 
-DATA_FIELDS = ['ISBN', 'Title', 'Author', 'BrowseNodes', 'Thumbnail']
+DATA_FIELDS = ['ISBN', 'Title', 'Author', 'BrowseNodes', 'Thumbnail', 'EditorialReview']
 
 
 # https://docs.aws.amazon.com/AWSECommerceService/latest/DG/CHAP_ResponseGroupsList.html
-DEFAULT_RESPONSE_GROUPS = ['ItemAttributes', 'BrowseNodes', 'Images']
+DEFAULT_RESPONSE_GROUPS = ['ItemAttributes', 'BrowseNodes', 'Images', 'EditorialReview']
 
 
 def chunk_iterator(iterable, size=10):
@@ -100,7 +109,8 @@ def build_dict(item_xml):
         'Title': item_attrs_xml.find('Title').get_text(),
         'Author': item_attrs_xml.find('Author').get_text() if item_attrs_xml.find('Author') else None,
         'BrowseNodes': build_browse_node_paths(browse_nodes_xml),
-        'Thumbnail': item_xml.find('LargeImage').find('URL').get_text()
+        'Thumbnail': item_xml.find('LargeImage').find('URL').get_text(),
+        'EditorialReview': item_xml.find('EditorialReview').get_text() if item_xml.find('EditorialReview') else '',
     }
 
 
@@ -127,10 +137,11 @@ def main():
     with open('book_metadata.csv', 'w+') as wf:
         with open('isbns.txt') as rf:
             csv_dwriter = csv.DictWriter(wf, fieldnames=DATA_FIELDS)
-            for chunk in islice(chunk_iterator(rf, size=10), 50):
+            for chunk in chunk_iterator(rf, size=10):
                 isbns = list(map(lambda l: l.rstrip(), chunk))
                 xml_resp = _lookup_items(isbns)
                 if not xml_resp:
+                    print(f'Skipping {isbns}')
                     continue
                 drows = build_drows(xml_resp)
                 csv_dwriter.writerows(drows)

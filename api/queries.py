@@ -1,19 +1,19 @@
 SQL_BOOK_BY_ISBN = (
     '''
-    SELECT ISBN, Title, Thumbnail, Author
+    SELECT isbn, title, thumbnail, author, editorialReview
     FROM books
-    WHERE ISBN=%(ISBN)s
+    WHERE ISBN=%(isbn)s
     '''
 )
 
 SQL_TOP_BOOKS_BY_SUBREDDIT = (
     '''
-    SELECT B.title, B.thumbnail, B.isbn, "Total Mentions",
-          "Total Score"
+    SELECT B.title, B.thumbnail, B.isbn, "totalMentions",
+          "totalScore"
     FROM books B
         INNER JOIN(
-            SELECT comments_filter.isbn, COUNT(comments_filter.isbn) AS "Total Mentions",
-                   SUM(comments_filter.score) as "Total Score"
+            SELECT comments_filter.isbn, COUNT(comments_filter.isbn) AS "totalMentions",
+                   SUM(comments_filter.score) as "totalScore"
             FROM (
                 SELECT rank_filter.isbn, rank_filter.score FROM (
                     SELECT C.*,
@@ -22,7 +22,7 @@ SQL_TOP_BOOKS_BY_SUBREDDIT = (
                             ORDER BY score DESC
                         )
                     FROM comments C
-                    WHERE C.subreddit=%(SUBREDDIT)s
+                    WHERE C.subreddit=%(subreddit)s
                 ) rank_filter
                 WHERE rank_filter.row_number <= 3
             ) comments_filter
@@ -37,9 +37,9 @@ SQL_TOP_COMMENTS_BY_ISBN = (
     '''
     SELECT *
     FROM Comments
-    WHERE ISBN=%(ISBN)s
+    WHERE isbn=%(isbn)s
     ORDER BY score DESC
-    LIMIT 100;
+    LIMIT 25;
     '''
 )
 

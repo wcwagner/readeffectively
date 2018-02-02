@@ -1,7 +1,6 @@
 import json
 import os
 import psycopg2
-from authenticate import requires_auth
 from flask import Flask, request, abort
 from flask_cors import CORS
 from queries import SQL_TOP_BOOKS_BY_SUBREDDIT, SQL_TOP_COMMENTS_BY_ISBN, SQL_BOOK_BY_ISBN
@@ -41,15 +40,15 @@ def _fieldify_rows(cursor):
 
 @app.route('/api/r/<subreddit_name>', methods=['GET'])
 def subreddit(subreddit_name):
-    ORDER_BY_COL = 'Total Mentions'  # the deault
+    ORDER_BY_COL = 'totalMentions'  # the deault
     if 'sort' in request.args:
-        ORDER_BY_COL = f'Total {request.args["sort"].capitalize()}'
+        ORDER_BY_COL = f'total{request.args["sort"].capitalize()}'
 
     # Field Name & Table Name parameters must be handled outside of cur.excute()
     query = sql.SQL(SQL_TOP_BOOKS_BY_SUBREDDIT).format(sql.Identifier(ORDER_BY_COL))
 
     params = {
-        'SUBREDDIT': subreddit_name,
+        'subreddit': subreddit_name,
     }
     cur.execute(query, params)
     mentions = _fieldify_rows(cur)
@@ -63,7 +62,7 @@ def subreddit(subreddit_name):
 
 @app.route('/api/book/<isbn>', methods=['GET'])
 def book(isbn):
-    params = {'ISBN': isbn}
+    params = {'isbn': isbn}
     cur.execute(SQL_TOP_COMMENTS_BY_ISBN, params)
     comments = _fieldify_rows(cur)
     cur.execute(SQL_BOOK_BY_ISBN, params)
@@ -80,6 +79,5 @@ def book(isbn):
 
 
 @app.route('/api/shelves/<topic>')
-@requires_auth
 def shelve(topic):
     ...
