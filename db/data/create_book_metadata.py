@@ -17,15 +17,11 @@ def error_handler(err):
         time.sleep(random.expovariate(0.1))
         return True
 
-"""
+
 AMAZON_PAAPI_ACCESS_KEY = os.environ['AMAZON_PAAPI_ACCESS_KEY']
 AMAZON_PAAPI_SECRET_KEY = os.environ['AMAZON_PAAPI_SECRET_KEY']
 AMAZON_ASSOCIATE_TAG = os.environ['AMAZON_ASSOCIATE_TAG']
-"""
 
-AMAZON_PAAPI_ACCESS_KEY = 'AKIAIUBRMHIHWBXO5CQA'
-AMAZON_PAAPI_SECRET_KEY = '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'
-AMAZON_ASSOCIATE_TAG = 'readersindex-20'
 
 # client to the Amazon Product Advertising API
 AMZN = Amazon(AMAZON_PAAPI_ACCESS_KEY, AMAZON_PAAPI_SECRET_KEY, AMAZON_ASSOCIATE_TAG,
