@@ -2,12 +2,11 @@ import React, { Component } from "react";
 import axios from 'axios';
 import ReactMarkdown from "react-markdown";
 import { Container, Comment, Item, Icon, Segment, Rating } from 'semantic-ui-react'
-
+import queryString from 'query-string';
 
 class BookJumbotron extends Component{
 
   render() {
-    console.log('Jumbotron props:', this.props);
     let {title, author, thumbnail, editorialreview} = this.props;
     return (
       <Segment style={{marginTop: '1em'}}>
@@ -46,13 +45,15 @@ class CommentList extends Component {
   }
 
   makeComment(comment, key) {
-    let {author, created_utc, subreddit, score, body} = comment;
+    console.log(comment);
+    let {author, createdutc, subreddit, score, body} = comment;
     return (
       <Comment key={key} style={{borderBottomWidth: '1px', borderColor: 'gray', borderBottomStyle: 'solid'}}>
         <Comment.Content>
           <Comment.Author as='a'> {author}</Comment.Author>
           <Comment.Metadata>
-            <div> {epochToLocalDt(created_utc).toString()} </div>
+            <div> {epochToLocalDt(createdutc).toDateString()} </div>
+            <div> in <strong>{subreddit}</strong></div>
           </Comment.Metadata>
           <Comment.Text>
             <ReactMarkdown source={body} />
@@ -64,7 +65,6 @@ class CommentList extends Component {
 
   render() {
     let { comments } = this.props;
-    console.log(comments);
     return(
       <Comment.Group size='large'>
         {
@@ -90,7 +90,8 @@ class BookInfo extends Component {
   }
 
   getComments() {
-    axios.get(`http://localhost/api/book/${this.props.match.params.isbn}`)
+    let { pathname, search } = this.props.location;
+    axios.get(`http://localhost/api${pathname}${search}`)
     .then((resp) => {
       console.log(resp);
       this.setState({apiResponse: resp.data.data});

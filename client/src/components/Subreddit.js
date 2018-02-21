@@ -37,11 +37,15 @@ class BookList extends Component {
 
   makeCard(data, key) {
     let {title, thumbnail, isbn, totalMentions, totalScore} = data;
+    let { subreddit } = this.props;
     return (
       <Item
         key={key}
         as={Link}
-        to={`/book/${isbn}`}
+        to={{
+          pathname: `/book/${isbn}`,
+          search: `?subreddit=${subreddit}`
+        }}
       >
         <Item.Image size='tiny' src={thumbnail}/>
         <Item.Content>
@@ -167,6 +171,7 @@ class Subreddit extends Component {
         />
         <BookList
           hits={this.state.activeHits}
+          subreddit={this.props.match.params.subreddit}
         />
         <Pagination
           activePage={this.state.activePage}
